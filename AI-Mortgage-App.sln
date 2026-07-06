@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{66547A2D-D746-4292-B15A-315D9E2A2B61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI.Mortgage.Api", "backend\AI.Mortgage.Api\AI.Mortgage.Api.csproj", "{50377D3B-2609-45F0-8713-DDF9AC61DB39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI.Mortgage.Application", "backend\AI.Mortgage.Application\AI.Mortgage.Application.csproj", "{2D93EF48-1459-476A-9877-A80BE9868DAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI.Mortgage.Domain", "backend\AI.Mortgage.Domain\AI.Mortgage.Domain.csproj", "{2ADCA80E-C5D6-49DB-8148-55EB4229C9AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI.Mortgage.Infrastructure", "backend\AI.Mortgage.Infrastructure\AI.Mortgage.Infrastructure.csproj", "{7A3B1228-60AE-4842-82F6-5A0F4313056E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4AEB8D9E-F70C-4628-999B-E8B5DAD3E9E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI.Mortgage.Api.Tests", "backend\tests\AI.Mortgage.Api.Tests\AI.Mortgage.Api.Tests.csproj", "{CBEDBBD8-8CAA-495D-A078-559A31F2C941}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{50377D3B-2609-45F0-8713-DDF9AC61DB39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50377D3B-2609-45F0-8713-DDF9AC61DB39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50377D3B-2609-45F0-8713-DDF9AC61DB39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50377D3B-2609-45F0-8713-DDF9AC61DB39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D93EF48-1459-476A-9877-A80BE9868DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D93EF48-1459-476A-9877-A80BE9868DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D93EF48-1459-476A-9877-A80BE9868DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D93EF48-1459-476A-9877-A80BE9868DAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ADCA80E-C5D6-49DB-8148-55EB4229C9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ADCA80E-C5D6-49DB-8148-55EB4229C9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ADCA80E-C5D6-49DB-8148-55EB4229C9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ADCA80E-C5D6-49DB-8148-55EB4229C9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3B1228-60AE-4842-82F6-5A0F4313056E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3B1228-60AE-4842-82F6-5A0F4313056E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3B1228-60AE-4842-82F6-5A0F4313056E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3B1228-60AE-4842-82F6-5A0F4313056E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBEDBBD8-8CAA-495D-A078-559A31F2C941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBEDBBD8-8CAA-495D-A078-559A31F2C941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBEDBBD8-8CAA-495D-A078-559A31F2C941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBEDBBD8-8CAA-495D-A078-559A31F2C941}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{50377D3B-2609-45F0-8713-DDF9AC61DB39} = {66547A2D-D746-4292-B15A-315D9E2A2B61}
+		{2D93EF48-1459-476A-9877-A80BE9868DAD} = {66547A2D-D746-4292-B15A-315D9E2A2B61}
+		{2ADCA80E-C5D6-49DB-8148-55EB4229C9AF} = {66547A2D-D746-4292-B15A-315D9E2A2B61}
+		{7A3B1228-60AE-4842-82F6-5A0F4313056E} = {66547A2D-D746-4292-B15A-315D9E2A2B61}
+		{4AEB8D9E-F70C-4628-999B-E8B5DAD3E9E1} = {66547A2D-D746-4292-B15A-315D9E2A2B61}
+		{CBEDBBD8-8CAA-495D-A078-559A31F2C941} = {4AEB8D9E-F70C-4628-999B-E8B5DAD3E9E1}
+	EndGlobalSection
+EndGlobal
