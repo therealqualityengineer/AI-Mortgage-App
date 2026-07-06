@@ -1,8 +1,9 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import type { Route } from '../App';
 
 type LoginPageProps = {
-  navigate: (to: '/' | '/dashboard') => void;
+  navigate: (to: Route) => void;
 };
 
 function LoginPage({ navigate }: LoginPageProps) {
@@ -41,7 +42,7 @@ function LoginPage({ navigate }: LoginPageProps) {
         localStorage.setItem('authUser', JSON.stringify(data.user));
         localStorage.setItem('authToken', data.token);
         setMessage('');
-        navigate('/dashboard');
+        navigate({ name: 'dashboard' });
         return;
       }
 

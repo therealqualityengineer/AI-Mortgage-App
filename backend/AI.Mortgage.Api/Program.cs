@@ -1,5 +1,7 @@
 using System.Text;
 using AI.Mortgage.Api.Services;
+using AI.Mortgage.Application.Customers;
+using AI.Mortgage.Application.Repositories;
 using AI.Mortgage.Application.Services;
 using AI.Mortgage.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +16,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<HealthCheckService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+// Customer Management (Sprint 3)
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (!string.IsNullOrWhiteSpace(connectionString))

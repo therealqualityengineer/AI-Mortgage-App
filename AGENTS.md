@@ -50,9 +50,10 @@ PostgreSQL (identity.* + public AuditEntries)
   - `AI.Mortgage.Api/` — ASP.NET Core API project (controllers, Program.cs, appsettings).
   - `tests/AI.Mortgage.Api.Tests/` — xUnit test project (currently minimal).
 - `frontend/`
-  - `src/pages/` — Route-level pages (LoginPage, DashboardPage).
+  - `src/pages/` — Route-level pages (LoginPage, DashboardPage, CustomersListPage, AddCustomerPage, ViewCustomerPage, EditCustomerPage).
   - `src/features/` — Planned feature modules (empty, contains README).
-  - `src/shared/` — Planned shared UI/hooks/utilities (empty, contains README).
+  - `src/shared/` — Shared UI (KpiCard, ActionButton, DashboardHeader, CustomerForm).
+  - `src/types/` — Shared types (Route).
   - Standard Vite + React + TS setup (`main.tsx`, `App.tsx`, vite.config.ts).
 - `docs/architecture/` — Architecture decision records and sprint notes (sprint1-setup.md).
 - Root: No AGENTS.md or kilo config files present at time of initial creation.
@@ -67,6 +68,8 @@ PostgreSQL (identity.* + public AuditEntries)
     - `identity.users` (uuid PK)
     - `identity.roles` (uuid PK)
     - `identity.user_roles` (composite PK on user_id + role_id)
+  - Customer schema (from CreateCustomerSchema migration):
+    - `customer.customers` (uuid PK) — first_name, last_name, email, phone, date_of_birth, address_line1/2, city, state, postal_code, country, is_active, created_at/updated_at, created_by/updated_by. Indexes on email and (last_name, first_name).
 - **Relationships**: `user_roles` is a join table with FKs to users and roles (Cascade delete). No navigation properties defined yet.
 - **Migrations applied state**: `InitialCreate` (AuditEntries) + `CreateIdentitySchema` (identity schema + tables + indexes + constraints). No pending model changes.
 - **Seeding**: Initial identity data seeded on startup via `SeedData.Initialize` (only if 'arunqa' user does not exist).
@@ -83,6 +86,11 @@ PostgreSQL (identity.* + public AuditEntries)
 - `GET /api/health` — Returns `{ status: "ready" }`.
 - `GET /api/audit` — Returns `{ status: <health service value> }` (currently always "ready").
 - `GET /health` (minimal API) — Returns `{ status: "ready" }`.
+- `GET /api/customers` — Returns all customers (protected). Ordered by name.
+- `GET /api/customers/{id}` — Returns single customer or 404.
+- `POST /api/customers` — Creates customer. Returns 201 + customer on success.
+- `PUT /api/customers/{id}` — Full update of customer.
+- `PATCH /api/customers/{id}/status` — Toggles Active/Inactive (no hard delete).
 - Swagger UI enabled in Development (`/swagger`).
 
 **Placeholders and planned**:
@@ -94,16 +102,27 @@ PostgreSQL (identity.* + public AuditEntries)
 ## 7. Frontend
 **Completed screens**:
 - `LoginPage` (`/`) — Simple form (username/password). Hard-coded demo defaults. Posts to backend login. On success stores user + JWT token in localStorage and navigates to dashboard.
-- `DashboardPage` (`/dashboard`) — Shows signed-in user + calls protected `/api/auth/me` using Authorization: Bearer token. Logout clears storage.
+- `DashboardPage` (`/dashboard`) — Enterprise dashboard v1. Shows welcome, logged-in user, role, 5 placeholder KPI cards (all 0), Quick Action buttons (Add Customer, New Loan Application, Logout). Uses shared components. "Customers" nav link present.
+- `CustomersListPage` (`/customers`) — Lists all customers from DB. View / Edit / Activate/Deactivate actions. No delete.
+- `AddCustomerPage` (`/customers/new`) — Uses shared CustomerForm. On success redirects to list.
+- `ViewCustomerPage` (`/customers/:id`) — Read-only view with toggle status action.
+- `EditCustomerPage` (`/customers/:id/edit`) — Edit form using same CustomerForm component.
 
 **Navigation**:
 - Hash-based routing in `App.tsx` (`#/` and `#/dashboard`). No React Router yet.
 - No protected route component; dashboard manually checks localStorage.
 
 **Components**:
-- No reusable component library.
-- All UI uses inline styles.
-- `features/` and `shared/` directories prepared but empty.
+- Reusable component library started in `src/shared/components/`.
+- `KpiCard` — enterprise KPI card with accent bar, title, large value, and optional subtitle.
+- `ActionButton` — styled action button with primary/secondary/outline variants + press animation.
+- `DashboardHeader` — top bar showing platform name + signed-in user + role badge + logout + primary nav (Dashboard, Customers).
+  - `DashboardPage` (`/dashboard`) — fully implemented Sprint 2 v1 enterprise dashboard.
+  - `CustomerForm` — reusable controlled form for create/edit (all fields, validation on names).
+- Welcome message, user name, role display, 5 KPI cards (all values = 0), Quick Actions.
+- Responsive grid (auto-fit min 168px). Uses `data-testid` attributes for automation.
+- `features/` remains empty (no domain modules yet). `shared/` now contains production-ready components.
+  - `src/types/route.ts` — central Route type definition used across all pages.
 
 ## 8. Business Modules
 **Completed modules**: None. The platform is pre-domain.
@@ -141,13 +160,35 @@ PostgreSQL (identity.* + public AuditEntries)
   - Frontend API URL corrected to `http://localhost:5294` (matches backend launchSettings).
   - Verified runnable: backend (5294) + frontend Vite (5173) start successfully; login page loads, returns JWT, dashboard calls protected `/me` endpoint.
   - Initial identity data seeded on startup (`SeedData.Initialize`): Admin role + arunqa user (password hashed with PasswordHasher<TUser>) + role assignment. Idempotent (skips if user exists).
+  - **Sprint 3 - Customer Management**:
+    - New "customer" schema + `customer.customers` table via EF Core migration (`CreateCustomerSchema`).
+    - Domain `Customer` entity (Domain/Entities).
+    - `ICustomerRepository` + `CustomerRepository` (Application layer, following Clean Architecture).
+    - DTOs + `ICustomerService` + `CustomerService` (Application/Customers) with validation.
+    - `CustomersController` (protected): GET list, GET by id, POST create, PUT update, PATCH /status (no DELETE).
+    - Services registered with DI.
+    - Frontend: centralized `Route` type + hash routing supporting /customers/* paths.
+    - New pages: `CustomersListPage`, `AddCustomerPage`, `ViewCustomerPage`, `EditCustomerPage`.
+    - Reusable `CustomerForm` (controlled, validation on names).
+    - `DashboardHeader` now includes "Customers" nav link.
+    - Dashboard "Add Customer" quick action now navigates to create form.
+    - All customer calls use Authorization: Bearer token.
+    - After successful create: redirect to Customer List (per requirement).
+    - Active/Inactive toggle instead of hard delete.
+    - Clean enterprise styling + data-testid attributes.
+    - Full backend + frontend build + lint pass.
 - **Work in progress**:
   - Nothing explicitly tracked.
 - **Next tasks** (inferred):
-  - Add proper frontend routing and shared components.
-  - Begin first mortgage domain module (e.g., LoanApplication).
+  - Add proper frontend routing and shared components. (Completed in Sprint 2)
+  - Customer Management module. (Completed in Sprint 3)
+  - Begin next mortgage domain module (e.g., LoanApplication). (Awaiting approval)
 
 ## 11. Technical Debt
+- (Resolved) Duplicate AuthService removed. Login now uses clean Application-layer implementation (`IAuthService` + `Result<T>` in `AI.Mortgage.Application.Services`).
+- (Resolved) Password hashing now uses ASP.NET Core Identity PasswordHasher<TUser> (PBKDF2 + HMAC-SHA256, per-user salt, work factor). Old SHA256 removed.
+- Hard-coded backend URL in frontend (was `http://localhost:5300`; resolved to 5294).
+- (Resolved) Identity tables were defined but unmigrated; now implemented via CreateIdentitySchema migration with proper UUID PKs + audit fields.
 - (Resolved) Duplicate AuthService removed. Login now uses clean Application-layer implementation (`IAuthService` + `Result<T>` in `AI.Mortgage.Application.Services`).
 - (Resolved) Password hashing now uses ASP.NET Core Identity PasswordHasher<TUser> (PBKDF2 + HMAC-SHA256, per-user salt, work factor). Old SHA256 removed.
 - Hard-coded backend URL in frontend (was `http://localhost:5300`; resolved to 5294).
@@ -197,4 +238,4 @@ Since the project owner is an Automation Test Engineer, the following must be co
 
 ---
 
-**Note**: This AGENTS.md reflects the state after Sprint 1 setup verification (2026-07-06). Backend (5294) + frontend Vite (5173) confirmed runnable with corrected API URL; login page loads and can authenticate against the DB-backed endpoint. Update this file on every significant architectural, domain, or infrastructure change.
+**Note**: This AGENTS.md reflects the state after Sprint 3 Customer Management (2026-07-06). Backend (5294) + frontend Vite (5173) confirmed runnable. Customer schema + full CRUD (no delete) implemented end-to-end. Dashboard navigation updated. All lint/build pass. Update this file on every significant architectural, domain, or infrastructure change.

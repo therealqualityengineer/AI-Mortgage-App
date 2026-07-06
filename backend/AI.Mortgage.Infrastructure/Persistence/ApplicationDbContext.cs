@@ -1,3 +1,4 @@
+using AI.Mortgage.Domain.Entities;
 using AI.Mortgage.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<IdentityUser> IdentityUsers => Set<IdentityUser>();
     public DbSet<IdentityRole> IdentityRoles => Set<IdentityRole>();
     public DbSet<IdentityUserRole> IdentityUserRoles => Set<IdentityUserRole>();
+    public DbSet<Customer> Customers => Set<Customer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +81,35 @@ public class ApplicationDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.ToTable("customers", "customer");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100).HasColumnName("first_name");
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100).HasColumnName("last_name");
+            entity.Property(e => e.Email).HasMaxLength(256).HasColumnName("email");
+            entity.Property(e => e.Phone).HasMaxLength(32).HasColumnName("phone");
+            entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
+
+            entity.Property(e => e.AddressLine1).HasMaxLength(200).HasColumnName("address_line1");
+            entity.Property(e => e.AddressLine2).HasMaxLength(200).HasColumnName("address_line2");
+            entity.Property(e => e.City).HasMaxLength(100).HasColumnName("city");
+            entity.Property(e => e.State).HasMaxLength(100).HasColumnName("state");
+            entity.Property(e => e.PostalCode).HasMaxLength(20).HasColumnName("postal_code");
+            entity.Property(e => e.Country).HasMaxLength(2).HasColumnName("country").HasDefaultValue("US");
+
+            entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+
+            entity.HasIndex(e => e.Email).HasDatabaseName("ix_customers_email");
+            entity.HasIndex(e => new { e.LastName, e.FirstName }).HasDatabaseName("ix_customers_name");
         });
 
         base.OnModelCreating(modelBuilder);
