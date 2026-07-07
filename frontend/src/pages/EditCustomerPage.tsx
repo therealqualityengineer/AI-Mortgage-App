@@ -104,7 +104,7 @@ export default function EditCustomerPage({ id, navigate }: EditCustomerPageProps
       try { json = await res.json(); } catch { /* non-JSON error body */ }
 
       if (res.ok && json.success) {
-        navigate({ name: 'customer-view', id });
+        navigate({ name: 'customer-view', id, success: 'Customer updated successfully.' });
         return { success: true };
       } else {
         const msg = json.message || json.error || (res.status >= 500 ? `Server error (${res.status})` : 'Failed to update customer');

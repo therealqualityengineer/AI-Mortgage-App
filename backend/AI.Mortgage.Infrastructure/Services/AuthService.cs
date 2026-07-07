@@ -1,19 +1,9 @@
 using AI.Mortgage.Application.Common;
+using AI.Mortgage.Application.Services;
 using AI.Mortgage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace AI.Mortgage.Application.Services;
-
-public interface IAuthService
-{
-    Task<Result<AuthenticatedUser>> AuthenticateAsync(string username, string password, CancellationToken cancellationToken = default);
-}
-
-public sealed record AuthenticatedUser(
-    string Username,
-    string? Email,
-    string? FullName,
-    IReadOnlyList<string> Roles);
+namespace AI.Mortgage.Infrastructure.Services;
 
 public class AuthService : IAuthService
 {

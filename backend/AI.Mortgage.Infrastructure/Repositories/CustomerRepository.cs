@@ -1,8 +1,9 @@
 using AI.Mortgage.Domain.Entities;
+using AI.Mortgage.Application.Repositories;
 using AI.Mortgage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace AI.Mortgage.Application.Repositories;
+namespace AI.Mortgage.Infrastructure.Repositories;
 
 public class CustomerRepository : ICustomerRepository
 {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './App.css';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -10,20 +10,29 @@ import type { Route } from './types/route';
 
 function App() {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      setRoute(parseHash(window.location.hash));
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  const pendingSuccessRef = useRef<string | undefined>(undefined);
 
   function navigate(to: Route) {
+    pendingSuccessRef.current = (to as any).success;
     const hash = routeToHash(to);
     window.location.hash = hash;
     setRoute(to);
   }
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const parsed = parseHash(window.location.hash);
+      const success = pendingSuccessRef.current;
+      if (success) {
+        pendingSuccessRef.current = undefined;
+        setRoute({ ...parsed, success } as Route);
+      } else {
+        setRoute(parsed);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   function render() {
     switch (route.name) {
@@ -32,11 +41,11 @@ function App() {
       case 'dashboard':
         return <DashboardPage navigate={navigate} />;
       case 'customers-list':
-        return <CustomersListPage navigate={navigate} />;
+        return <CustomersListPage navigate={navigate} success={(route as any).success} />;
       case 'customer-add':
         return <AddCustomerPage navigate={navigate} />;
       case 'customer-view':
-        return <ViewCustomerPage id={route.id} navigate={navigate} />;
+        return <ViewCustomerPage id={route.id} navigate={navigate} success={(route as any).success} />;
       case 'customer-edit':
         return <EditCustomerPage id={route.id} navigate={navigate} />;
       default:

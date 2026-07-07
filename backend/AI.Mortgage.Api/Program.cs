@@ -1,9 +1,17 @@
 using System.Text;
+using AI.Mortgage.Api.Filters;
+using AI.Mortgage.Api.Jobs;
 using AI.Mortgage.Api.Services;
 using AI.Mortgage.Application.Customers;
+using AI.Mortgage.Application.Email;
 using AI.Mortgage.Application.Repositories;
 using AI.Mortgage.Application.Services;
+using AI.Mortgage.Infrastructure.Email;
 using AI.Mortgage.Infrastructure.Persistence;
+using AI.Mortgage.Infrastructure.Repositories;
+using AI.Mortgage.Infrastructure.Services;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +66,19 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// Hangfire (PostgreSQL storage) + Email (Sprint 3.1)
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email:Smtp"));
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailQueue, HangfireEmailQueue>();
+
+if (!string.IsNullOrWhiteSpace(connectionString))
+{
+    builder.Services.AddHangfire(config =>
+        config.UsePostgreSqlStorage(connectionString));
+
+    builder.Services.AddHangfireServer();
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -91,6 +112,12 @@ app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Hangfire Dashboard - protected to Admin role only (Sprint 3.1)
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
 
 app.MapControllers();
 

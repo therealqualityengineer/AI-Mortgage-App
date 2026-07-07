@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace AI.Mortgage.Application.Services;
+namespace AI.Mortgage.Infrastructure.Services;
 
 public static class PasswordVerifier
 {

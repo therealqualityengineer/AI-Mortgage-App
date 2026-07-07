@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md
 
 ## Current Sprint
-Sprint 3 – Customer Management (COMPLETE as of 2026-07-07).
+Sprint 3.1 – Asynchronous Welcome Email using Hangfire (COMPLETE as of 2026-07-07).
 
 ## Completed Work
 - Layered .NET 8 solution with Clean Architecture.
@@ -16,6 +16,15 @@ Sprint 3 – Customer Management (COMPLETE as of 2026-07-07).
 - All protected calls use Bearer token.
 - Backend + frontend build + lint clean.
 - Ports: Backend 5294, Frontend 5173.
+- **Sprint 3.1 - Asynchronous Welcome Email using Hangfire**:
+  - Hangfire.AspNetCore + Hangfire.PostgreSql added; PostgreSQL job storage.
+  - `IEmailService` (Application/Email) + `EmailService` (Infrastructure/Email) using Mailtrap SMTP.
+  - `IEmailQueue` + `HangfireEmailQueue` (fire-and-forget enqueue).
+  - `EmailJob` with `[AutomaticRetry(Attempts = 3)]`.
+  - `EmailOptions` bound from `Email:Smtp`.
+  - Protected `/hangfire` dashboard via `HangfireAuthorizationFilter` (Admin role only).
+  - CustomerService.CreateAsync queues welcome email after DB save (non-blocking).
+  - Failures retried by Hangfire; customer creation unaffected.
 
 ## Current Task
 None active. Platform ready for next mortgage domain module.

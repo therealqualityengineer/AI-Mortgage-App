@@ -1,5 +1,6 @@
 using AI.Mortgage.Application.Common;
 using AI.Mortgage.Application.Customers;
+using AI.Mortgage.Application.Email;
 using AI.Mortgage.Application.Repositories;
 using AI.Mortgage.Domain.Entities;
 
@@ -8,10 +9,12 @@ namespace AI.Mortgage.Application.Customers;
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _repository;
+    private readonly IEmailQueue _emailQueue;
 
-    public CustomerService(ICustomerRepository repository)
+    public CustomerService(ICustomerRepository repository, IEmailQueue emailQueue)
     {
         _repository = repository;
+        _emailQueue = emailQueue;
     }
 
     public async Task<Result<IReadOnlyList<CustomerDto>>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -69,6 +72,13 @@ public class CustomerService : ICustomerService
         };
 
         var created = await _repository.AddAsync(entity, cancellationToken);
+
+        // Queue welcome email asynchronously (Sprint 3.1 - Hangfire).
+        // Does not block the response; failures are retried by Hangfire.
+        _emailQueue.EnqueueWelcomeEmail(
+            $"{created.FirstName} {created.LastName}".Trim(),
+            created.Email ?? string.Empty);
+
         return Result<CustomerDto>.Success(MapToDto(created));
     }
 

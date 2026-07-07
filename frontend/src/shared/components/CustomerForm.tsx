@@ -116,8 +116,9 @@ export function CustomerForm({
     if (!result.success) {
       setError(result.error || 'Failed to save customer.');
       setSubmitting(false);
+    } else {
+      setSubmitting(false);
     }
-    // On success, parent handles redirect
   }
 
   const inputStyle: React.CSSProperties = {

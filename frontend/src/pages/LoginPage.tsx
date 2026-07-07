@@ -83,13 +83,24 @@ function LoginPage({ navigate }: LoginPageProps) {
             style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
           />
         </label>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          style={{ padding: '0.75rem', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1 }}
-        >
-          {isSubmitting ? 'Signing in…' : 'Sign In'}
-        </button>
+        <div style={{ textAlign: 'center' }}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            style={{
+              padding: '0.35rem 0.9rem',
+              fontSize: '0.875rem',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              opacity: isSubmitting ? 0.7 : 1,
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: 4,
+            }}
+          >
+            {isSubmitting ? 'Signing in…' : 'Sign In'}
+          </button>
+        </div>
       </form>
       {message ? <p style={{ color: 'crimson', marginTop: '1rem' }}>{message}</p> : null}
     </div>

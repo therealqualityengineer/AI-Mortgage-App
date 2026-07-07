@@ -24,9 +24,10 @@ interface Customer {
 type ViewCustomerPageProps = {
   id: string;
   navigate: (to: Route) => void;
+  success?: string;
 };
 
-export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps) {
+export default function ViewCustomerPage({ id, navigate, success }: ViewCustomerPageProps) {
   const token = localStorage.getItem('authToken');
 
   // Sanitize route id (UUIDs only now).
@@ -36,6 +37,7 @@ export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage] = useState(success || '');
   const [toggling, setToggling] = useState(false);
 
   async function load() {
@@ -140,6 +142,9 @@ export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps
           </div>
         </div>
 
+        {successMessage && (
+          <div style={{ marginBottom: '1rem', color: '#166534', background: '#dcfce7', padding: '0.5rem 0.75rem', borderRadius: 6, fontSize: '0.875rem' }}>{successMessage}</div>
+        )}
         {error && <div style={{ color: 'crimson', marginBottom: '1rem' }}>{error}</div>}
 
         {loading || !customer ? (

@@ -58,7 +58,7 @@ export default function AddCustomerPage({ navigate }: AddCustomerPageProps) {
       try { json = await res.json(); } catch { /* non-JSON error body */ }
 
       if (res.ok && json.success) {
-        navigate({ name: 'customers-list' });
+        navigate({ name: 'customers-list', success: 'Customer created successfully.' });
         return { success: true };
       } else {
         const msg = json.message || json.error || (res.status >= 500 ? `Server error (${res.status})` : 'Failed to create customer');

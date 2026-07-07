@@ -15,12 +15,14 @@ interface Customer {
 
 type CustomersListPageProps = {
   navigate: (to: Route) => void;
+  success?: string;
 };
 
-export default function CustomersListPage({ navigate }: CustomersListPageProps) {
+export default function CustomersListPage({ navigate, success }: CustomersListPageProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage] = useState(success || '');
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const token = localStorage.getItem('authToken');
@@ -129,6 +131,9 @@ export default function CustomersListPage({ navigate }: CustomersListPageProps) 
           />
         </div>
 
+        {successMessage && (
+          <div style={{ marginBottom: '1rem', color: '#166534', background: '#dcfce7', padding: '0.5rem 0.75rem', borderRadius: 6, fontSize: '0.875rem' }}>{successMessage}</div>
+        )}
         {error && (
           <div style={{ marginBottom: '1rem', color: 'crimson', fontSize: '0.875rem' }}>{error}</div>
         )}

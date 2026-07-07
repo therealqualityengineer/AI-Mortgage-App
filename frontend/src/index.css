@@ -109,3 +109,16 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Blinking text caret (I-beam) must appear ONLY inside editable text boxes.
+   Clicking anywhere else (labels, buttons, divs, tables, etc.) must NOT show a blinking cursor. */
+body {
+  caret-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable="true"],
+[contenteditable=""] {
+  caret-color: currentColor;
+}

@@ -182,6 +182,17 @@ PostgreSQL (identity.* + public AuditEntries)
 - **Next tasks** (inferred):
   - Add proper frontend routing and shared components. (Completed in Sprint 2)
   - Customer Management module. (Completed in Sprint 3)
+  - **Sprint 3.1 - Asynchronous Welcome Email using Hangfire** (COMPLETE):
+    - Implemented Hangfire with PostgreSQL storage (Hangfire.AspNetCore + Hangfire.PostgreSql).
+    - Created `IEmailService` (Application/Email) + `EmailService` (Infrastructure/Email) using Mailtrap SMTP.
+    - Created `IEmailQueue` abstraction + `HangfireEmailQueue` implementation.
+    - Created `EmailJob` (Api/Jobs) with `[AutomaticRetry(Attempts=3)]`.
+    - Added `EmailOptions` bound from `Email:Smtp` section.
+    - Protected `/hangfire` dashboard with `HangfireAuthorizationFilter` (Admin role only via JWT).
+    - CustomerService.CreateAsync queues welcome email after successful DB save (fire-and-forget, non-blocking).
+    - Email failures are retried by Hangfire; do not affect customer creation response.
+    - Config: appsettings + Development contain SMTP placeholders (Host, Port, Username, Password, From).
+    - All protected calls use Bearer token; Clean Architecture preserved.
   - Begin next mortgage domain module (e.g., LoanApplication). (Awaiting approval)
 
 ## 11. Technical Debt
@@ -235,4 +246,4 @@ Since the project owner is an Automation Test Engineer, the following must be co
 
 ---
 
-**Note**: This AGENTS.md reflects the state after Sprint 3 Customer Management (2026-07-06). Backend (5294) + frontend Vite (5173) confirmed runnable. Customer schema + full CRUD (no delete) implemented end-to-end. Dashboard navigation updated. All lint/build pass. Update this file on every significant architectural, domain, or infrastructure change.
+**Note**: This AGENTS.md reflects the state after Sprint 3.1 Asynchronous Welcome Email using Hangfire (2026-07-07). Backend (5294) + frontend Vite (5173) confirmed runnable. Customer schema + full CRUD (no delete) + Hangfire background jobs + protected dashboard implemented. All lint/build pass. Update this file on every significant architectural, domain, or infrastructure change.
