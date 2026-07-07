@@ -8,8 +8,6 @@ import ViewCustomerPage from './pages/ViewCustomerPage';
 import EditCustomerPage from './pages/EditCustomerPage';
 import type { Route } from './types/route';
 
-export type { Route };
-
 function App() {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
 
@@ -50,7 +48,10 @@ function App() {
 }
 
 function parseHash(hash: string): Route {
-  const path = (hash.replace('#', '') || '/').toLowerCase();
+  // Robust normalization: handle "#", "#/foo", "#foo", "foo", etc.
+  let p = (hash || '').replace(/^#/, '');
+  if (!p.startsWith('/')) p = '/' + p;
+  const path = p.toLowerCase();
 
   if (path === '/' || path === '') return { name: 'login' };
   if (path === '/dashboard') return { name: 'dashboard' };
@@ -58,10 +59,14 @@ function parseHash(hash: string): Route {
   if (path === '/customers/new') return { name: 'customer-add' };
 
   const viewMatch = path.match(/^\/customers\/([0-9a-f-]{36})$/i);
-  if (viewMatch) return { name: 'customer-view', id: viewMatch[1] };
+  if (viewMatch) {
+    return { name: 'customer-view', id: viewMatch[1] };
+  }
 
   const editMatch = path.match(/^\/customers\/([0-9a-f-]{36})\/edit$/i);
-  if (editMatch) return { name: 'customer-edit', id: editMatch[1] };
+  if (editMatch) {
+    return { name: 'customer-edit', id: editMatch[1] };
+  }
 
   return { name: 'dashboard' };
 }

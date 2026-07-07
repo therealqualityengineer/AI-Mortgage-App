@@ -1,5 +1,37 @@
 import { useState } from 'react';
 
+const countryList = [
+  'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
+  'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+  'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
+  'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo (Congo-Brazzaville)', 'Costa Rica',
+  'Croatia', 'Cuba', 'Cyprus', 'Czechia (Czech Republic)', 'Democratic Republic of the Congo', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador',
+  'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France',
+  'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau',
+  'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland',
+  'Israel', 'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan',
+  'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar',
+  'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia',
+  'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar (Burma)', 'Namibia', 'Nauru', 'Nepal',
+  'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan',
+  'Palau', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania',
+  'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal',
+  'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Korea',
+  'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Tajikistan', 'Tanzania',
+  'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda',
+  'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam',
+  'Yemen', 'Zambia', 'Zimbabwe'
+];
+
+export function normalizeCountry(c?: string): string {
+  if (!c) return 'United States';
+  const trimmed = c.trim();
+  if (trimmed === 'US' || trimmed === 'USA' || trimmed.toLowerCase() === 'united states') return 'United States';
+  if (countryList.includes(trimmed)) return trimmed;
+  const match = countryList.find(x => x.toLowerCase() === trimmed.toLowerCase());
+  return match || 'United States';
+}
+
 export interface CustomerFormData {
   firstName: string;
   lastName: string;
@@ -33,20 +65,23 @@ export function CustomerForm({
     firstName: initialData?.firstName || '',
     lastName: initialData?.lastName || '',
     email: initialData?.email || '',
-    phone: initialData?.phone || '',
+    phone: (initialData?.phone || '').replace(/\D/g, '').slice(0, 10),
     dateOfBirth: initialData?.dateOfBirth ? initialData.dateOfBirth.split('T')[0] : '',
     addressLine1: initialData?.addressLine1 || '',
     addressLine2: initialData?.addressLine2 || '',
     city: initialData?.city || '',
     state: initialData?.state || '',
     postalCode: initialData?.postalCode || '',
-    country: initialData?.country || 'US',
+    country: normalizeCountry(initialData?.country),
   });
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   function update(field: keyof CustomerFormData, value: string) {
+    if (field === 'phone') {
+      value = value.replace(/\D/g, '').slice(0, 10);
+    }
     setForm((prev) => ({ ...prev, [field]: value }));
     if (error) setError('');
   }
@@ -56,6 +91,21 @@ export function CustomerForm({
 
     if (!form.firstName.trim() || !form.lastName.trim()) {
       setError('First name and last name are required.');
+      return;
+    }
+
+    if (!form.email || !form.email.trim()) {
+      setError('Email is required.');
+      return;
+    }
+
+    if (!form.email.includes('@') || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!form.phone || form.phone.length !== 10) {
+      setError('Phone number must be exactly 10 digits.');
       return;
     }
 
@@ -113,21 +163,23 @@ export function CustomerForm({
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
         <div>
-          <label style={labelStyle}>Email</label>
+          <label style={labelStyle}>Email *</label>
           <input
             type="email"
             style={inputStyle}
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
+            required
             data-testid="email"
           />
         </div>
         <div>
-          <label style={labelStyle}>Phone</label>
+          <label style={labelStyle}>Phone *</label>
           <input
             style={inputStyle}
             value={form.phone}
             onChange={(e) => update('phone', e.target.value)}
+            required
             data-testid="phone"
           />
         </div>
@@ -168,7 +220,7 @@ export function CustomerForm({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 80px', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 180px 320px', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <label style={labelStyle}>City</label>
           <input style={inputStyle} value={form.city} onChange={(e) => update('city', e.target.value)} data-testid="city" />
@@ -178,12 +230,21 @@ export function CustomerForm({
           <input style={inputStyle} value={form.state} onChange={(e) => update('state', e.target.value)} data-testid="state" />
         </div>
         <div>
-          <label style={labelStyle}>Postal Code</label>
+          <label style={{ ...labelStyle, whiteSpace: 'nowrap' }}>Zip Code</label>
           <input style={inputStyle} value={form.postalCode} onChange={(e) => update('postalCode', e.target.value)} data-testid="postal" />
         </div>
         <div>
           <label style={labelStyle}>Country</label>
-          <input style={inputStyle} value={form.country} onChange={(e) => update('country', e.target.value)} data-testid="country" />
+          <select
+            style={inputStyle}
+            value={form.country}
+            onChange={(e) => update('country', e.target.value)}
+            data-testid="country"
+          >
+            {countryList.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
         </div>
       </div>
 

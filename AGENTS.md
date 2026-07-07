@@ -18,8 +18,8 @@
 Current architecture follows a layered Clean Architecture approach with strict dependency direction (Api → Application → Infrastructure → Domain). The implementation is early-stage and incomplete.
 
 Layers and responsibilities:
-- **Domain**: Core business entities, value objects, and domain events. Currently contains only `BaseEntity` and placeholder `AuditLogEntry`. No mortgage aggregates yet.
-- **Application**: Use-case services, DTOs, business rules orchestration, and cross-cutting abstractions (e.g., `Result<T>`). Services currently live here (AuthService stub, PasswordVerifier, HealthCheckService) but are also duplicated in the Api layer.
+- **Domain**: Core business entities, value objects, and domain events. Currently contains only `BaseEntity`. No mortgage aggregates yet.
+- **Application**: Use-case services, DTOs, business rules orchestration, and cross-cutting abstractions (e.g., `Result<T>`). Services currently live here (AuthService, PasswordVerifier).
 - **Infrastructure**: Persistence (EF Core `ApplicationDbContext`), entity mappings, migrations, external integrations. Identity tables mapped to `identity` schema; audit table in public schema.
 - **Api**: Controllers, minimal services (AuthService implementation), configuration, Swagger. Entry point (`Program.cs`).
 
@@ -187,20 +187,17 @@ PostgreSQL (identity.* + public AuditEntries)
 ## 11. Technical Debt
 - (Resolved) Duplicate AuthService removed. Login now uses clean Application-layer implementation (`IAuthService` + `Result<T>` in `AI.Mortgage.Application.Services`).
 - (Resolved) Password hashing now uses ASP.NET Core Identity PasswordHasher<TUser> (PBKDF2 + HMAC-SHA256, per-user salt, work factor). Old SHA256 removed.
-- Hard-coded backend URL in frontend (was `http://localhost:5300`; resolved to 5294).
-- (Resolved) Identity tables were defined but unmigrated; now implemented via CreateIdentitySchema migration with proper UUID PKs + audit fields.
-- (Resolved) Duplicate AuthService removed. Login now uses clean Application-layer implementation (`IAuthService` + `Result<T>` in `AI.Mortgage.Application.Services`).
-- (Resolved) Password hashing now uses ASP.NET Core Identity PasswordHasher<TUser> (PBKDF2 + HMAC-SHA256, per-user salt, work factor). Old SHA256 removed.
-- Hard-coded backend URL in frontend (was `http://localhost:5300`; resolved to 5294).
+- (Resolved in cleanup) Hard-coded backend URLs centralized into `frontend/src/config.ts` (single source of truth).
 - (Resolved) Identity tables were defined but unmigrated; now implemented via CreateIdentitySchema migration with proper UUID PKs + audit fields.
 - No real authentication (no tokens, sessions, or secure storage).
 - No input validation or DTOs.
 - Connection strings with credentials committed.
-- `Class1.cs` placeholder files in all layers.
+- (Resolved in cleanup) `Class1.cs` placeholder files removed from all layers.
 - No CORS policy, no error handling middleware, no logging configuration beyond defaults.
 - Inline styles; no component library or design system.
 - Minimal or empty tests.
-- Audit domain entity (`AuditLogEntry`) unused; persistence entity (`AuditEntry`) used directly.
+- (Resolved in cleanup) Unused `AuditLogEntry` domain entity removed (only `AuditEntry` persistence entity is used).
+- (Resolved in cleanup) `HealthCheckService` + `AuditController` misuse removed (AuditController now returns static "ready").
 
 ## 12. AI Development Rules
 

@@ -1,9 +1,8 @@
-using AI.Mortgage.Domain.Common;
-
 namespace AI.Mortgage.Domain.Entities;
 
-public class Customer : BaseEntity
+public class Customer
 {
+    public Guid Id { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string? Email { get; set; }

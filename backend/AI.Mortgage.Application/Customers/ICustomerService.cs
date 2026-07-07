@@ -1,7 +1,5 @@
 using AI.Mortgage.Application.Common;
 using AI.Mortgage.Application.Customers;
-using AI.Mortgage.Application.Repositories;
-using AI.Mortgage.Domain.Entities;
 
 namespace AI.Mortgage.Application.Customers;
 

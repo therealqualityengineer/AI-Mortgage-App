@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { DashboardHeader } from '../shared/components/DashboardHeader';
 import { CustomerForm, type CustomerFormData } from '../shared/components/CustomerForm';
 import type { Route } from '../types/route';
+import { API_BASE_URL } from '../config';
 
 type AddCustomerPageProps = {
   navigate: (to: Route) => void;
@@ -40,11 +41,11 @@ export default function AddCustomerPage({ navigate }: AddCustomerPageProps) {
       city: data.city || null,
       state: data.state || null,
       postalCode: data.postalCode || null,
-      country: data.country || 'US',
+      country: data.country || 'United States',
     };
 
     try {
-      const res = await fetch('http://localhost:5294/api/customers', {
+      const res = await fetch(`${API_BASE_URL}/api/customers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,13 +54,15 @@ export default function AddCustomerPage({ navigate }: AddCustomerPageProps) {
         body: JSON.stringify(payload),
       });
 
-      const json = await res.json();
+      let json: any = {};
+      try { json = await res.json(); } catch { /* non-JSON error body */ }
+
       if (res.ok && json.success) {
-        // Requirement: After successfully adding, redirect back to Customer List
         navigate({ name: 'customers-list' });
         return { success: true };
       } else {
-        return { success: false, error: json.message || 'Failed to create customer' };
+        const msg = json.message || json.error || (res.status >= 500 ? `Server error (${res.status})` : 'Failed to create customer');
+        return { success: false, error: msg };
       }
     } catch {
       return { success: false, error: 'Unable to connect to server' };

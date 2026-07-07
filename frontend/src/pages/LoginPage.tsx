@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import type { Route } from '../App';
+import type { Route } from '../types/route';
+import { API_BASE_URL } from '../config';
 
 type LoginPageProps = {
   navigate: (to: Route) => void;
@@ -30,7 +31,7 @@ function LoginPage({ navigate }: LoginPageProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5294/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: trimmedUsername, password: trimmedPassword })

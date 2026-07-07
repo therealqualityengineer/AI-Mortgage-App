@@ -36,6 +36,22 @@ public class CustomerService : ICustomerService
             return Result<CustomerDto>.Failure("First name and last name are required.");
         }
 
+        if (!string.IsNullOrWhiteSpace(request.Email))
+        {
+            if (await _repository.ExistsByEmailAsync(request.Email, cancellationToken))
+            {
+                return Result<CustomerDto>.Failure("A customer with this email already exists.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Phone))
+        {
+            if (await _repository.ExistsByPhoneAsync(request.Phone, cancellationToken))
+            {
+                return Result<CustomerDto>.Failure("A customer with this phone number already exists.");
+            }
+        }
+
         var entity = new Customer
         {
             FirstName = request.FirstName.Trim(),

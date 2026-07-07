@@ -3,6 +3,7 @@ import { DashboardHeader } from '../shared/components/DashboardHeader';
 import { KpiCard } from '../shared/components/KpiCard';
 import { ActionButton } from '../shared/components/ActionButton';
 import type { Route } from '../types/route';
+import { API_BASE_URL } from '../config';
 
 type DashboardPageProps = {
   navigate: (to: Route) => void;
@@ -31,7 +32,7 @@ function DashboardPage({ navigate }: DashboardPageProps) {
     // Validate token with backend (non-blocking)
     const token = localStorage.getItem('authToken');
     if (token) {
-      fetch('http://localhost:5294/api/auth/me', {
+      fetch(`${API_BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((r) => (r.ok ? r.json() : null))

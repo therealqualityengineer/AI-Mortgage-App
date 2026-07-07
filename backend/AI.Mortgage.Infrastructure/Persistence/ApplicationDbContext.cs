@@ -87,7 +87,7 @@ public class ApplicationDbContext : DbContext
         {
             entity.ToTable("customers", "customer");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
 
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100).HasColumnName("first_name");
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100).HasColumnName("last_name");
@@ -100,7 +100,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.City).HasMaxLength(100).HasColumnName("city");
             entity.Property(e => e.State).HasMaxLength(100).HasColumnName("state");
             entity.Property(e => e.PostalCode).HasMaxLength(20).HasColumnName("postal_code");
-            entity.Property(e => e.Country).HasMaxLength(2).HasColumnName("country").HasDefaultValue("US");
+            entity.Property(e => e.Country).HasMaxLength(100).HasColumnName("country").HasDefaultValue("US");
 
             entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
             entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("CURRENT_TIMESTAMP");

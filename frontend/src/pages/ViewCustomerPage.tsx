@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DashboardHeader } from '../shared/components/DashboardHeader';
 import type { Route } from '../types/route';
+import { API_BASE_URL } from '../config';
 
 interface Customer {
   id: string;
@@ -26,22 +27,33 @@ type ViewCustomerPageProps = {
 };
 
 export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps) {
+  const token = localStorage.getItem('authToken');
+
+  // Sanitize route id (UUIDs only now).
+  const customerId = String(id ?? '').trim();
+  const isValidId = customerId.length === 36 && /^[0-9a-f-]{36}$/i.test(customerId);
+
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toggling, setToggling] = useState(false);
 
-  const token = localStorage.getItem('authToken');
-
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5294/api/customers/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/customers/${customerId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
       if (res.ok && json.success && json.data) {
-        setCustomer(json.data);
+        const c = json.data;
+        setCustomer({
+          ...c,
+          id: String(c.id ?? c.Id ?? c.ID ?? customerId),
+          firstName: c.firstName ?? c.FirstName ?? '',
+          lastName: c.lastName ?? c.LastName ?? '',
+          isActive: c.isActive ?? c.IsActive ?? true,
+        });
       } else {
         setError(json.message || 'Customer not found');
       }
@@ -57,15 +69,19 @@ export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps
       navigate({ name: 'login' });
       return;
     }
+    if (!isValidId) {
+      navigate({ name: 'customers-list' });
+      return;
+    }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [customerId, token, isValidId]);
 
   async function toggleStatus() {
     if (!customer) return;
     setToggling(true);
     try {
-      const res = await fetch(`http://localhost:5294/api/customers/${id}/status`, {
+      const res = await fetch(`${API_BASE_URL}/api/customers/${customerId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ isActive: !customer.isActive }),
@@ -93,6 +109,7 @@ export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps
   const username = user.username || 'User';
   const role = (user.roles && user.roles[0]) || 'User';
 
+  const displayId = (typeof id === 'string' && id.trim()) ? id.trim() : '—';
   const row = (label: string, value?: string | null) => (
     <div style={{ display: 'flex', gap: '1rem', padding: '0.5rem 0', borderBottom: '1px solid #f1f5f9' }}>
       <div style={{ width: 140, color: '#64748b', fontSize: '0.8125rem' }}>{label}</div>
@@ -108,7 +125,7 @@ export default function ViewCustomerPage({ id, navigate }: ViewCustomerPageProps
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <div>
             <div style={{ fontSize: '1.35rem', fontWeight: 700 }}>Customer Details</div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {id}</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {displayId}</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button onClick={() => navigate({ name: 'customers-list' })} style={{ padding: '0.5rem 0.9rem', border: '1px solid #cbd5e1', background: '#fff', borderRadius: 8, cursor: 'pointer' }}>Back to List</button>

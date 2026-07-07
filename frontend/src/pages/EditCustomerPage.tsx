@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { DashboardHeader } from '../shared/components/DashboardHeader';
-import { CustomerForm, type CustomerFormData } from '../shared/components/CustomerForm';
+import { CustomerForm, type CustomerFormData, normalizeCountry } from '../shared/components/CustomerForm';
 import type { Route } from '../types/route';
+import { API_BASE_URL } from '../config';
 
 interface Customer {
   id: string;
@@ -38,12 +39,18 @@ export default function EditCustomerPage({ id, navigate }: EditCustomerPageProps
 
     async function load() {
       try {
-        const res = await fetch(`http://localhost:5294/api/customers/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/customers/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json();
         if (res.ok && json.success && json.data) {
-          setCustomer(json.data);
+          const c = json.data;
+          setCustomer({
+            ...c,
+            id: String(c.id ?? c.Id ?? c.ID ?? id),
+            firstName: c.firstName ?? c.FirstName ?? '',
+            lastName: c.lastName ?? c.LastName ?? '',
+          });
         } else {
           setError(json.message || 'Customer not found');
         }
@@ -80,11 +87,11 @@ export default function EditCustomerPage({ id, navigate }: EditCustomerPageProps
       city: data.city || null,
       state: data.state || null,
       postalCode: data.postalCode || null,
-      country: data.country || 'US',
+      country: data.country || 'United States',
     };
 
     try {
-      const res = await fetch(`http://localhost:5294/api/customers/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -92,12 +99,16 @@ export default function EditCustomerPage({ id, navigate }: EditCustomerPageProps
         },
         body: JSON.stringify(payload),
       });
-      const json = await res.json();
+
+      let json: any = {};
+      try { json = await res.json(); } catch { /* non-JSON error body */ }
+
       if (res.ok && json.success) {
         navigate({ name: 'customer-view', id });
         return { success: true };
       } else {
-        return { success: false, error: json.message || 'Failed to update customer' };
+        const msg = json.message || json.error || (res.status >= 500 ? `Server error (${res.status})` : 'Failed to update customer');
+        return { success: false, error: msg };
       }
     } catch {
       return { success: false, error: 'Unable to connect to server' };
@@ -140,7 +151,7 @@ export default function EditCustomerPage({ id, navigate }: EditCustomerPageProps
               city: customer.city || '',
               state: customer.state || '',
               postalCode: customer.postalCode || '',
-              country: customer.country || 'US',
+              country: normalizeCountry(customer.country),
             }}
             onSubmit={handleSubmit}
             onCancel={() => navigate({ name: 'customer-view', id })}

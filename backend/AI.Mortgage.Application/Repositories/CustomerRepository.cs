@@ -29,9 +29,33 @@ public class CustomerRepository : ICustomerRepository
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
+    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return false;
+        var normalized = email.Trim().ToLowerInvariant();
+        return await _dbContext.Customers
+            .AsNoTracking()
+            .AnyAsync(c => c.Email != null && c.Email.ToLower() == normalized, cancellationToken);
+    }
+
+    public async Task<bool> ExistsByPhoneAsync(string phone, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(phone)) return false;
+        var normalized = System.Text.RegularExpressions.Regex.Replace(phone, @"\D", "");
+        if (string.IsNullOrEmpty(normalized)) return false;
+
+        var existingPhones = await _dbContext.Customers
+            .AsNoTracking()
+            .Where(c => c.Phone != null)
+            .Select(c => c.Phone)
+            .ToListAsync(cancellationToken);
+
+        return existingPhones.Any(p =>
+            System.Text.RegularExpressions.Regex.Replace(p!, @"\D", "") == normalized);
+    }
+
     public async Task<Customer> AddAsync(Customer customer, CancellationToken cancellationToken = default)
     {
-        customer.Id = Guid.NewGuid();
         customer.CreatedAt = DateTimeOffset.UtcNow;
 
         _dbContext.Customers.Add(customer);
